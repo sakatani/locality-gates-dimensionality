@@ -1,0 +1,100 @@
+{
+  "config": {
+    "n_train": 4000,
+    "n_val": 1200,
+    "epochs": 22,
+    "hidden": 32,
+    "layers": 16,
+    "wall_p": 0.28,
+    "ws_deg": [
+      5,
+      7,
+      9
+    ],
+    "seed": 0,
+    "quick": false
+  },
+  "bandwidth": [
+    {
+      "W": 5,
+      "H": 5,
+      "bw_2d": 1,
+      "bw_1d_rowmajor": 5,
+      "bw_1d_best": 5
+    },
+    {
+      "W": 7,
+      "H": 7,
+      "bw_2d": 1,
+      "bw_1d_rowmajor": 7,
+      "bw_1d_best": 7
+    },
+    {
+      "W": 9,
+      "H": 9,
+      "bw_2d": 1,
+      "bw_1d_rowmajor": 9,
+      "bw_1d_best": 9
+    },
+    {
+      "W": 11,
+      "H": 11,
+      "bw_2d": 1,
+      "bw_1d_rowmajor": 11,
+      "bw_1d_best": 11
+    },
+    {
+      "W": 15,
+      "H": 15,
+      "bw_2d": 1,
+      "bw_1d_rowmajor": 15,
+      "bw_1d_best": 15
+    }
+  ],
+  "balance": {
+    "f1": 0.5,
+    "f3": 0.5135
+  },
+  "solvability": {
+    "f1_gnn": 0.965,
+    "f1_2d": 0.935,
+    "f1_global": 0.6858333333333333,
+    "f3_1d": 0.8491666666666666
+  },
+  "degradation_f1": [
+    {
+      "W": 5,
+      "acc_2d": 0.9958333333333333,
+      "acc_1d": 0.9525,
+      "gap": 0.043333333333333335,
+      "balance": 0.5
+    },
+    {
+      "W": 7,
+      "acc_2d": 0.9608333333333333,
+      "acc_1d": 0.6783333333333333,
+      "gap": 0.2825,
+      "balance": 0.5
+    },
+    {
+      "W": 9,
+      "acc_2d": 0.7666666666666667,
+      "acc_1d": 0.625,
+      "gap": 0.14166666666666672,
+      "balance": 0.5
+    }
+  ],
+  "f3_control": {
+    "acc_2d": 0.8516666666666667,
+    "acc_1d": 0.8491666666666666,
+    "gap_2d_minus_1d": 0.0025000000000000577
+  },
+  "verdict": {
+    "bandwidth_decoupled": true,
+    "solvable_by_strong_arm": true,
+    "degradation_1d_drops_2d_holds": true,
+    "f3_control_ok": true,
+    "green": true
+  },
+  "runtime_sec": 53.4
+}
