@@ -1,0 +1,73 @@
+{
+  "config": {
+    "sweep": [
+      4,
+      6,
+      8,
+      10,
+      12
+    ],
+    "iters": 16,
+    "hidden_2d": 32,
+    "hidden_univ": 96,
+    "epochs_univ": 32,
+    "tau": 0.8,
+    "epochs": 22,
+    "n_train": 4000
+  },
+  "univ_curve": [
+    {
+      "W": 4,
+      "acc": 0.7004166666666667
+    },
+    {
+      "W": 6,
+      "acc": 0.5562499999999999
+    },
+    {
+      "W": 8,
+      "acc": 0.5325
+    },
+    {
+      "W": 10,
+      "acc": 0.5
+    },
+    {
+      "W": 12,
+      "acc": 0.5
+    }
+  ],
+  "td_curve": [
+    {
+      "W": 4,
+      "acc": 0.9966666666666667
+    },
+    {
+      "W": 6,
+      "acc": 0.9725000000000001
+    },
+    {
+      "W": 8,
+      "acc": 0.8491666666666666
+    },
+    {
+      "W": 10,
+      "acc": 0.6900000000000001
+    },
+    {
+      "W": 12,
+      "acc": 0.7044444444444444
+    }
+  ],
+  "w_star_univ": 0,
+  "w_star_2d": 8,
+  "params_univ": 86593,
+  "params_2d": 149281,
+  "per_step_cost": {
+    "univ": "O(N^2) attention",
+    "2d": "O(N*9) conv"
+  },
+  "baseline_valid": false,
+  "framing": "INCONCLUSIVE: univ failed to train (W*<4); fall back on GNN as the iterative reference",
+  "runtime_sec": 1485.3
+}
