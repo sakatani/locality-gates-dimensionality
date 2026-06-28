@@ -125,6 +125,35 @@ class GlobalLooped(nn.Module):
         return self.head(_gather_cells(h, idx_b)).squeeze(-1)
 
 
+class UniversalTransformer(nn.Module):
+    """Capable iterative-global baseline (A.0.7) — a Universal Transformer done
+    properly: ONE weight-shared encoder layer applied ``iters`` times with
+    **pre-LN** (norm_first, stable for deep recurrence) + a **per-iteration step
+    embedding** (lets each step do different work) + a final norm. This is the
+    fair "is it 2D or just iteration?" test the naive ``GlobalLooped`` failed.
+    """
+
+    def __init__(self, hidden: int = 32, iters: int = 16, heads: int = 4):
+        super().__init__()
+        self.embed = nn.Linear(N_CHANNELS, hidden)
+        self.step_emb = nn.Parameter(torch.zeros(iters, hidden))
+        self.layer = nn.TransformerEncoderLayer(
+            hidden, heads, hidden * 2, batch_first=True, dropout=0.0,
+            norm_first=True)
+        self.norm = nn.LayerNorm(hidden)
+        self.iters = iters
+        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, 1))
+
+    def forward(self, x_bchw: torch.Tensor, idx_b: torch.Tensor) -> torch.Tensor:
+        B, C, H, W = x_bchw.shape
+        h = self.embed(x_bchw.reshape(B, C, H * W).transpose(1, 2))
+        for t in range(self.iters):
+            h = self.layer(h + self.step_emb[t])
+        h = self.norm(h)
+        return self.head(_gather_cells(h, idx_b)).squeeze(-1)
+
+
 class GlobalAttn(nn.Module):
     """Small Transformer encoder over all cells (full attention)."""
 

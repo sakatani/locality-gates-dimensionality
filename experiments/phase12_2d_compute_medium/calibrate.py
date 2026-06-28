@@ -27,7 +27,7 @@ import torch
 from .families import (build_f1, build_f3, instance_to_channels, readout_cell,
                        class_balance)
 from .models import (GlobalAttn, GlobalLooped, GNNAdj, Local1D, Local1DCurve,
-                     Local2D, build_neighbour_index)
+                     Local2D, UniversalTransformer, build_neighbour_index)
 from .substrate import (GridInstance, bandwidth_2d, gilbert_order,
                         grid_bandwidth_best_1d, row_major_bandwidth)
 
@@ -59,7 +59,8 @@ def tensorise(instances: list[GridInstance]):
 # ---------------------------------------------------------------------------
 
 def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
-               *, hidden: int, layers: int, epochs: int, seed: int) -> float:
+               *, hidden: int, layers: int, epochs: int, seed: int,
+               lr: float = 2e-3, clip: float | None = None) -> float:
     torch.manual_seed(seed)
     np.random.seed(seed)
     dev = device()
@@ -76,6 +77,8 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
         model = GlobalAttn(hidden, layers=min(layers, 4))
     elif arm == "looped":
         model = GlobalLooped(hidden, iters=layers)
+    elif arm == "univ":
+        model = UniversalTransformer(hidden, iters=layers)
     elif arm == "gnn":
         model = GNNAdj(hidden, layers)
     else:
@@ -106,7 +109,7 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
     Xva_t = torch.from_numpy(Xva).to(dev)
     iva_t = torch.from_numpy(iva).to(dev)
 
-    opt = torch.optim.Adam(model.parameters(), lr=2e-3)
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
     lossf = torch.nn.BCEWithLogitsLoss()
     bs = 256
     n = len(train)
@@ -125,6 +128,8 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
                 logit = model(Xtr_t[b], itr_t[b])
             loss = lossf(logit, ytr_t[b])
             loss.backward()
+            if clip is not None:
+                torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
             opt.step()
         model.eval()
         with torch.no_grad():

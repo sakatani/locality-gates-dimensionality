@@ -8,7 +8,7 @@ import torch
 from experiments.phase12_2d_compute_medium.families import (
     build_f1, instance_to_channels, readout_cell)
 from experiments.phase12_2d_compute_medium.models import (
-    GlobalLooped, Local1DCurve)
+    GlobalLooped, Local1DCurve, UniversalTransformer)
 from experiments.phase12_2d_compute_medium.substrate import gilbert_order
 
 
@@ -47,6 +47,12 @@ def test_curve_arm_forward():
 def test_looped_global_forward():
     X, idx, _ = _tiny_batch()
     out = GlobalLooped(16, iters=4)(X, idx)
+    assert out.shape == (8,)
+
+
+def test_universal_transformer_forward():
+    X, idx, _ = _tiny_batch()
+    out = UniversalTransformer(16, iters=4)(X, idx)
     assert out.shape == (8,)
 
 
