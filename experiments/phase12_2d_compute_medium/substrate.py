@@ -147,3 +147,53 @@ def grid_bandwidth_best_1d(H: int, W: int) -> int:
 def bandwidth_2d() -> int:
     """2D lattice embedding bandwidth = 1 (neighbours are lattice-adjacent)."""
     return 1
+
+
+# ---------------------------------------------------------------------------
+# Space-filling-curve order (A.0.6 Hilbert control) — generalised Hilbert
+# ("Gilbert", Červený) for arbitrary W×H. Consecutive visits are (mostly)
+# 4-neighbours → the locality-preserving 1D order. The bandwidth theorem still
+# bounds it at Θ(min(W,H)); A.0.6 checks empirically that it does not rescue 1D.
+# ---------------------------------------------------------------------------
+
+def _sign(x: int) -> int:
+    return (x > 0) - (x < 0)
+
+
+def _gilbert(x, y, ax, ay, bx, by, out):
+    w, h = abs(ax + ay), abs(bx + by)
+    dax, day, dbx, dby = _sign(ax), _sign(ay), _sign(bx), _sign(by)
+    if h == 1:
+        for _ in range(w):
+            out.append((x, y))
+            x, y = x + dax, y + day
+        return
+    if w == 1:
+        for _ in range(h):
+            out.append((x, y))
+            x, y = x + dbx, y + dby
+        return
+    ax2, ay2, bx2, by2 = ax // 2, ay // 2, bx // 2, by // 2
+    w2, h2 = abs(ax2 + ay2), abs(bx2 + by2)
+    if 2 * w > 3 * h:
+        if (w2 % 2) and w > 2:
+            ax2, ay2 = ax2 + dax, ay2 + day
+        _gilbert(x, y, ax2, ay2, bx, by, out)
+        _gilbert(x + ax2, y + ay2, ax - ax2, ay - ay2, bx, by, out)
+    else:
+        if (h2 % 2) and h > 2:
+            bx2, by2 = bx2 + dbx, by2 + dby
+        _gilbert(x, y, bx2, by2, ax2, ay2, out)
+        _gilbert(x + bx2, y + by2, ax, ay, bx - bx2, by - by2, out)
+        _gilbert(x + (ax - dax) + (bx2 - dbx), y + (ay - day) + (by2 - dby),
+                 -bx2, -by2, -(ax - ax2), -(ay - ay2), out)
+
+
+def gilbert_order(W: int, H: int) -> np.ndarray:
+    """Row-major cell indices in space-filling-curve visit order ( a permutation )."""
+    coords: list[tuple[int, int]] = []
+    if W >= H:
+        _gilbert(0, 0, W, 0, 0, H, coords)
+    else:
+        _gilbert(0, 0, 0, H, W, 0, coords)
+    return np.array([y * W + x for (x, y) in coords], dtype=np.int64)

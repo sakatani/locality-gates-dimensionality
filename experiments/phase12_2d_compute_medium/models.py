@@ -74,6 +74,57 @@ class Local1D(nn.Module):
         return self.head(_gather_cells(h, idx_b)).squeeze(-1)
 
 
+class Local1DCurve(nn.Module):
+    """kernel-9 conv stack on a SPACE-FILLING-CURVE serialisation (A.0.6 Hilbert
+    control). Identical operator/params to ``Local1D``; only the linearisation
+    order differs (the locality-preserving one). ``order`` (B-independent, (N,))
+    maps curve-position → row-major index; ``inv_order`` is its inverse.
+    """
+
+    def __init__(self, hidden: int = 32, layers: int = 10, kernel: int = 9):
+        super().__init__()
+        self.inp = nn.Conv1d(N_CHANNELS, hidden, 1)
+        pad = kernel // 2
+        self.convs = nn.ModuleList(
+            [nn.Conv1d(hidden, hidden, kernel, padding=pad) for _ in range(layers)]
+        )
+        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, 1))
+
+    def forward(self, x_bchw, idx_b, order, inv_order) -> torch.Tensor:
+        B, C, H, W = x_bchw.shape
+        seq = x_bchw.reshape(B, C, H * W)[:, :, order]   # reorder to curve
+        h = F.relu(self.inp(seq))
+        for conv in self.convs:
+            h = h + F.relu(conv(h))
+        h = h.transpose(1, 2)                            # (B, N, C) in curve order
+        return self.head(_gather_cells(h, inv_order[idx_b])).squeeze(-1)
+
+
+class GlobalLooped(nn.Module):
+    """Capable *iterative* global baseline (A.0.6): ONE weight-shared Transformer
+    encoder layer applied ``iters`` times → full attention that can propagate
+    over many steps (unlike the shallow ``GlobalAttn``). Tests whether the
+    advantage is '2D' vs merely 'iteration'.
+    """
+
+    def __init__(self, hidden: int = 32, iters: int = 16, heads: int = 4):
+        super().__init__()
+        self.embed = nn.Linear(N_CHANNELS, hidden)
+        self.layer = nn.TransformerEncoderLayer(hidden, heads, hidden * 2,
+                                                batch_first=True, dropout=0.0)
+        self.iters = iters
+        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, 1))
+
+    def forward(self, x_bchw: torch.Tensor, idx_b: torch.Tensor) -> torch.Tensor:
+        B, C, H, W = x_bchw.shape
+        h = self.embed(x_bchw.reshape(B, C, H * W).transpose(1, 2))
+        for _ in range(self.iters):
+            h = self.layer(h)
+        return self.head(_gather_cells(h, idx_b)).squeeze(-1)
+
+
 class GlobalAttn(nn.Module):
     """Small Transformer encoder over all cells (full attention)."""
 

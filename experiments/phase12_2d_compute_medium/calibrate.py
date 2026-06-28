@@ -26,9 +26,10 @@ import torch
 
 from .families import (build_f1, build_f3, instance_to_channels, readout_cell,
                        class_balance)
-from .models import GlobalAttn, GNNAdj, Local1D, Local2D, build_neighbour_index
-from .substrate import (GridInstance, bandwidth_2d, grid_bandwidth_best_1d,
-                        row_major_bandwidth)
+from .models import (GlobalAttn, GlobalLooped, GNNAdj, Local1D, Local1DCurve,
+                     Local2D, build_neighbour_index)
+from .substrate import (GridInstance, bandwidth_2d, gilbert_order,
+                        grid_bandwidth_best_1d, row_major_bandwidth)
 
 REPORT_DIR = Path(__file__).resolve().parents[2] / "runs" / "phase12_2d_compute_medium"
 QUICK = os.environ.get("PHASE12_QUICK", "0") == "1"
@@ -69,8 +70,12 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
         model = Local2D(hidden, layers)
     elif arm == "1d":
         model = Local1D(hidden, layers)
+    elif arm == "1d_hilbert":
+        model = Local1DCurve(hidden, layers)
     elif arm == "global":
         model = GlobalAttn(hidden, layers=min(layers, 4))
+    elif arm == "looped":
+        model = GlobalLooped(hidden, iters=layers)
     elif arm == "gnn":
         model = GNNAdj(hidden, layers)
     else:
@@ -85,6 +90,15 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
         mask_tr = torch.from_numpy(m_tr).to(dev)
         nbr_va = torch.from_numpy(n_va).to(dev)
         mask_va = torch.from_numpy(m_va).to(dev)
+
+    order_t = inv_t = None
+    if arm == "1d_hilbert":
+        W0, H0 = train[0].W, train[0].H
+        perm = gilbert_order(W0, H0)
+        inv = np.empty_like(perm)
+        inv[perm] = np.arange(perm.size)
+        order_t = torch.from_numpy(perm).to(dev)
+        inv_t = torch.from_numpy(inv).to(dev)
 
     Xtr_t = torch.from_numpy(Xtr).to(dev)
     itr_t = torch.from_numpy(itr).to(dev)
@@ -105,6 +119,8 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
             opt.zero_grad()
             if arm == "gnn":
                 logit = model(Xtr_t[b], itr_t[b], nbr_tr[b], mask_tr[b])
+            elif arm == "1d_hilbert":
+                logit = model(Xtr_t[b], itr_t[b], order_t, inv_t)
             else:
                 logit = model(Xtr_t[b], itr_t[b])
             loss = lossf(logit, ytr_t[b])
@@ -114,6 +130,8 @@ def train_eval(arm: str, train: list[GridInstance], val: list[GridInstance],
         with torch.no_grad():
             if arm == "gnn":
                 pred = (model(Xva_t, iva_t, nbr_va, mask_va) > 0).float().cpu().numpy()
+            elif arm == "1d_hilbert":
+                pred = (model(Xva_t, iva_t, order_t, inv_t) > 0).float().cpu().numpy()
             else:
                 pred = (model(Xva_t, iva_t) > 0).float().cpu().numpy()
         acc = float((pred == yva).mean())
