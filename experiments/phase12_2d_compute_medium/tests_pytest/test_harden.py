@@ -56,6 +56,15 @@ def test_universal_transformer_forward():
     assert out.shape == (8,)
 
 
+def test_conv_ca_arms_forward_and_stable():
+    from experiments.phase12_2d_compute_medium.models import ConvCA1D, ConvCA2D
+    X, idx, _ = _tiny_batch()
+    for model in (ConvCA2D(16), ConvCA1D(16)):
+        out = model(X, idx, iters=40)          # many iterations
+        assert out.shape == (8,)
+        assert torch.isfinite(out).all()        # gated-residual+GroupNorm → no blow-up
+
+
 def test_curve_arm_matches_1d_param_count():
     from experiments.phase12_2d_compute_medium.models import Local1D
     p_curve = sum(p.numel() for p in Local1DCurve(32, 12).parameters())

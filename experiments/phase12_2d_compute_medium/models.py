@@ -125,6 +125,64 @@ class GlobalLooped(nn.Module):
         return self.head(_gather_cells(h, idx_b)).squeeze(-1)
 
 
+class ConvCA2D(nn.Module):
+    """Adaptive-depth 2D-local operator (Stage B.2): ONE weight-shared local
+    conv update iterated ``iters`` times (a stabilised neural-CA). Because the
+    update is shared across steps, a rule learned on small grids with few steps
+    can be run for MORE steps at test to propagate across larger grids — breaking
+    the fixed-depth propagation bound. Gated residual + GroupNorm keep it stable
+    over variable iteration counts.
+    """
+
+    def __init__(self, hidden: int = 32, groups: int = 4):
+        super().__init__()
+        self.embed = nn.Conv2d(N_CHANNELS, hidden, 1)
+        self.msg = nn.Conv2d(hidden, hidden, 3, padding=1)
+        self.upd = nn.Conv2d(2 * hidden, hidden, 1)
+        self.norm = nn.GroupNorm(groups, hidden)
+        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, 1))
+
+    def forward(self, x_bchw: torch.Tensor, idx_b: torch.Tensor,
+                iters: int) -> torch.Tensor:
+        h = F.relu(self.embed(x_bchw))
+        for _ in range(iters):
+            m = self.msg(h)
+            u = torch.tanh(self.upd(torch.cat([h, m], dim=1)))
+            h = self.norm(h + 0.5 * u)
+        B, C, H, W = h.shape
+        hf = h.reshape(B, C, H * W).transpose(1, 2)
+        return self.head(_gather_cells(hf, idx_b)).squeeze(-1)
+
+
+class ConvCA1D(nn.Module):
+    """Adaptive-depth 1D control: the same iterated gated update on the row-major
+    serialisation (kernel-9 = 9-cell window, matched to ConvCA2D's 3×3). Tests
+    whether iterating longer rescues the wrong (W-dependent) linearisation.
+    """
+
+    def __init__(self, hidden: int = 32, groups: int = 4, kernel: int = 9):
+        super().__init__()
+        pad = kernel // 2
+        self.embed = nn.Conv1d(N_CHANNELS, hidden, 1)
+        self.msg = nn.Conv1d(hidden, hidden, kernel, padding=pad)
+        self.upd = nn.Conv1d(2 * hidden, hidden, 1)
+        self.norm = nn.GroupNorm(groups, hidden)
+        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, 1))
+
+    def forward(self, x_bchw: torch.Tensor, idx_b: torch.Tensor,
+                iters: int) -> torch.Tensor:
+        B, C, H, W = x_bchw.shape
+        h = F.relu(self.embed(x_bchw.reshape(B, C, H * W)))
+        for _ in range(iters):
+            m = self.msg(h)
+            u = torch.tanh(self.upd(torch.cat([h, m], dim=1)))
+            h = self.norm(h + 0.5 * u)
+        h = h.transpose(1, 2)
+        return self.head(_gather_cells(h, idx_b)).squeeze(-1)
+
+
 class UniversalTransformer(nn.Module):
     """Capable iterative-global baseline (A.0.7) — a Universal Transformer done
     properly: ONE weight-shared encoder layer applied ``iters`` times with
