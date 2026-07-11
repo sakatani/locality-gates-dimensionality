@@ -5,7 +5,8 @@ from __future__ import annotations
 import numpy as np
 
 from experiments.phase12_2d_compute_medium.families import (
-    build_f4, build_f5, class_balance, instance_to_channels, readout_cell)
+    build_f4, build_f4b, build_f5, class_balance, instance_to_channels,
+    readout_cell)
 from experiments.phase12_2d_compute_medium.substrate import (
     bfs_distance, ca_step, reachable)
 
@@ -37,6 +38,20 @@ def test_f4_balanced_and_label_correct():
         d = int(bfs_distance(inst.walls, inst.source)[inst.target])
         assert inst.label == int(0 <= d <= K)
         assert readout_cell(inst) == inst.target
+
+
+def test_f4b_balanced_scale_invariant_and_correct():
+    K, R = 6, 8
+    for W in (7, 20):                       # same fixed K/label rule at every W
+        data = build_f4b(200, W, W, wall_p=0.28, seed=0, radius=R, K=K)
+        assert abs(class_balance(data) - 0.5) < 0.07
+        for inst in data[:30]:
+            d = int(bfs_distance(inst.walls, inst.source)[inst.target])
+            assert inst.label == int(0 <= d <= K)
+            # T within Chebyshev radius R of S (scale-invariant placement)
+            assert max(abs(inst.source[0] - inst.target[0]),
+                       abs(inst.source[1] - inst.target[1])) <= R
+            assert readout_cell(inst) == inst.target
 
 
 def test_f5_balanced_and_label_correct():

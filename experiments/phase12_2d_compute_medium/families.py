@@ -131,6 +131,44 @@ def build_f4(n: int, W: int, H: int, wall_p: float, seed: int,
 
 
 # ---------------------------------------------------------------------------
+# F4b — bounded-radius fixed-K distance (scale-invariant metric; Stage B.3.1)
+# ---------------------------------------------------------------------------
+
+def build_f4b(n: int, W: int, H: int, wall_p: float, seed: int,
+              radius: int = 8, K: int = 6,
+              max_tries: int = 400_000) -> list[GridInstance]:
+    """Scale-invariant metric task: S random; T within Chebyshev ``radius`` of S
+    (clamped); label = 1 iff T reachable AND hop-distance(S,T) ≤ ``K`` (FIXED).
+    The computation is identical at every W → the GNN control can transfer it,
+    unlike F4's W-scaling threshold. Balanced 50/50 by rejection."""
+    rng = np.random.default_rng(seed)
+    pos: list[GridInstance] = []
+    neg: list[GridInstance] = []
+    half, tries = n // 2, 0
+    while (len(pos) < half or len(neg) < half) and tries < max_tries:
+        tries += 1
+        walls = (rng.random((H, W)) < wall_p).astype(np.uint8)
+        sr, sc = int(rng.integers(H)), int(rng.integers(W))
+        dr = int(rng.integers(-radius, radius + 1))
+        dc = int(rng.integers(-radius, radius + 1))
+        tr = min(max(sr + dr, 0), H - 1)
+        tc = min(max(sc + dc, 0), W - 1)
+        if (tr, tc) == (sr, sc):
+            continue
+        walls[sr, sc] = OPEN
+        walls[tr, tc] = OPEN
+        d = int(bfs_distance(walls, (sr, sc))[tr, tc])
+        label = int(0 <= d <= K)
+        bucket = pos if label == 1 else neg
+        if len(bucket) < half:
+            bucket.append(GridInstance(walls=walls, source=(sr, sc),
+                                       target=(tr, tc), label=label, family="F4"))
+    out = pos[:half] + neg[:half]
+    rng.shuffle(out)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # F5 — cellular-automaton rollout (local dynamics; Stage B.3)
 # ---------------------------------------------------------------------------
 

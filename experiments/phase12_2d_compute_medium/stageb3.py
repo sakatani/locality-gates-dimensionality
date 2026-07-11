@@ -16,7 +16,7 @@ import numpy as np
 import torch
 
 from .calibrate import REPORT_DIR, device
-from .families import build_f1, build_f4, build_f5
+from .families import build_f1, build_f4, build_f4b, build_f5
 from .lengthgen import _forward, _pack
 from .models import GNNAdj, Local1D, Local2D
 
@@ -37,6 +37,8 @@ def _build(family: str, n: int, W: int, seed: int):
         return build_f1(n, W, W, WALL_P, seed)
     if family == "F4":
         return build_f4(n, W, W, WALL_P, seed)
+    if family == "F4b":
+        return build_f4b(n, W, W, WALL_P, seed)
     return build_f5(n, W, W, seed)
 
 
