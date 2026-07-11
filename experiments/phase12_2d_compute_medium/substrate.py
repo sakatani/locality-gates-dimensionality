@@ -87,6 +87,40 @@ def reachable(walls: np.ndarray, source: tuple[int, int]) -> np.ndarray:
     return seen
 
 
+def bfs_distance(walls: np.ndarray, source: tuple[int, int]) -> np.ndarray:
+    """4-connected shortest-hop distance from ``source`` over OPEN cells →
+    (H, W) int32; unreachable / wall cells = -1 (F4)."""
+    H, W = walls.shape
+    dist = np.full((H, W), -1, dtype=np.int32)
+    sr, sc = source
+    if walls[sr, sc] == WALL:
+        return dist
+    dist[sr, sc] = 0
+    q = deque([(sr, sc)])
+    while q:
+        r, c = q.popleft()
+        for nr, nc in neighbours4(r, c, H, W):
+            if dist[nr, nc] < 0 and walls[nr, nc] == OPEN:
+                dist[nr, nc] = dist[r, c] + 1
+                q.append((nr, nc))
+    return dist
+
+
+def ca_step(state: np.ndarray) -> np.ndarray:
+    """One step of a fixed totalistic 4-neighbour+self CA (F5): a cell is ON next
+    step iff the count of ON cells in {self, 4-neighbours} is exactly 2 or 3.
+    Deterministic, local, translation-invariant → a scale-free local rule."""
+    H, W = state.shape
+    s = state.astype(np.int32)
+    nb = np.zeros_like(s)
+    nb[:-1, :] += s[1:, :]
+    nb[1:, :] += s[:-1, :]
+    nb[:, :-1] += s[:, 1:]
+    nb[:, 1:] += s[:, :-1]
+    total = s + nb
+    return ((total == 2) | (total == 3)).astype(np.uint8)
+
+
 def grid_edges(H: int, W: int) -> list[tuple[int, int]]:
     """All 4-neighbour cell-index pairs (row-major index), walls ignored."""
     edges: list[tuple[int, int]] = []

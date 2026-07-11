@@ -19,7 +19,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from .substrate import OPEN, WALL, GridInstance, reachable
+from .substrate import (OPEN, WALL, GridInstance, bfs_distance, ca_step,
+                        reachable)
 
 
 # ---------------------------------------------------------------------------
@@ -101,6 +102,69 @@ def build_f3(n: int, W: int, H: int, seed: int) -> list[GridInstance]:
 
 
 # ---------------------------------------------------------------------------
+# F4 — bounded shortest-hop distance (metric propagation; Stage B.3)
+# ---------------------------------------------------------------------------
+
+def build_f4(n: int, W: int, H: int, wall_p: float, seed: int,
+             max_tries: int = 400_000) -> list[GridInstance]:
+    """label = 1 iff T reachable from S AND hop-distance(S,T) ≤ K, K = 2·(W−1).
+    S top-row, T bottom-row (forces a vertical path, the high-1D-bandwidth
+    direction). Balanced 50/50 by rejection so the answer needs a genuine
+    distance computation, not aggregate density."""
+    rng = np.random.default_rng(seed)
+    K = 2 * (W - 1)
+    pos: list[GridInstance] = []
+    neg: list[GridInstance] = []
+    half, tries = n // 2, 0
+    while (len(pos) < half or len(neg) < half) and tries < max_tries:
+        tries += 1
+        walls, source, target = _random_grid(W, H, wall_p, rng)
+        d = int(bfs_distance(walls, source)[target])
+        label = int(d >= 0 and d <= K)
+        bucket = pos if label == 1 else neg
+        if len(bucket) < half:
+            bucket.append(GridInstance(walls=walls, source=source, target=target,
+                                       label=label, family="F4"))
+    out = pos[:half] + neg[:half]
+    rng.shuffle(out)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# F5 — cellular-automaton rollout (local dynamics; Stage B.3)
+# ---------------------------------------------------------------------------
+
+def build_f5(n: int, W: int, H: int, seed: int, steps: int = 2,
+             max_tries: int = 400_000) -> list[GridInstance]:
+    """Random binary initial state; label = query cell's state after ``steps``
+    of the fixed local CA rule (substrate.ca_step). Readout depends on a
+    (2·steps+1)² neighbourhood — local in 2D, non-local in row-major 1D.
+    Balanced ~50/50 by rejection. (T=2 → 5×5 neighbourhood: a genuinely local
+    dynamical-simulation task that stays learnable at pilot budget.)"""
+    rng = np.random.default_rng(seed)
+    pos: list[GridInstance] = []
+    neg: list[GridInstance] = []
+    half, tries = n // 2, 0
+    while (len(pos) < half or len(neg) < half) and tries < max_tries:
+        tries += 1
+        state = (rng.random((H, W)) < 0.5).astype(np.uint8)
+        rolled = state.copy()
+        for _ in range(steps):
+            rolled = ca_step(rolled)
+        qr, qc = int(rng.integers(H)), int(rng.integers(W))
+        label = int(rolled[qr, qc])
+        bucket = pos if label == 1 else neg
+        if len(bucket) < half:
+            bucket.append(GridInstance(
+                walls=np.zeros((H, W), dtype=np.uint8), source=(qr, qc),
+                target=(qr, qc), label=label, family="F5",
+                values=state.astype(np.float32)))
+    out = pos[:half] + neg[:half]
+    rng.shuffle(out)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Tensorisation (PLAN H1 — identical info for every arm)
 # ---------------------------------------------------------------------------
 
@@ -127,8 +191,10 @@ N_CHANNELS = 6
 
 
 def readout_cell(inst: GridInstance) -> tuple[int, int]:
-    """Which cell's final embedding carries the answer (target for F1, source for F3)."""
-    return inst.target if inst.family == "F1" else inst.source
+    """Which cell's final embedding carries the answer. F3 reads at the source
+    (row-prefix-parity cell); every other family (F1/F4/F5) reads at the target
+    (F5's target == its query cell)."""
+    return inst.source if inst.family == "F3" else inst.target
 
 
 def class_balance(instances: list[GridInstance]) -> float:
