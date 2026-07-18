@@ -252,6 +252,49 @@ def build_neighbour_index(walls_bhw: np.ndarray) -> tuple[np.ndarray, np.ndarray
     return nbr, mask
 
 
+class RecGNN(nn.Module):
+    """Stabilized recurrent GNN in the style of Grötschla et al. 2022
+    (RecGRU-E-lite): ONE weight-shared round applied ``rounds`` times, with
+    (i) a skip connection to the input features at every round, (ii) an edge
+    MLP on (h_v, h_w) pairs, (iii) a GRU state update, and (iv) an L2 state
+    regularizer returned as an auxiliary loss. ``rounds`` is set at call time,
+    so inference can run more rounds on larger graphs — the paper §5.2 arm."""
+
+    def __init__(self, hidden: int = 32):
+        super().__init__()
+        self.embed = nn.Linear(N_CHANNELS, hidden)
+        self.skip = nn.Linear(N_CHANNELS, hidden)
+        self.edge = nn.Sequential(nn.Linear(2 * hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, hidden))
+        self.gru = nn.GRUCell(hidden, hidden)
+        self.head = nn.Sequential(nn.Linear(hidden, hidden), nn.ReLU(),
+                                  nn.Linear(hidden, 1))
+        self.hidden = hidden
+
+    def forward(self, x_bchw, idx_b, nbr_bn4, mask_bn4, rounds: int):
+        B, C, H, W = x_bchw.shape
+        N = H * W
+        tok = x_bchw.reshape(B, C, N).transpose(1, 2)             # (B, N, C)
+        s = self.skip(tok)
+        h = self.embed(tok)
+        deg = mask_bn4.sum(-1, keepdim=True).clamp(min=1.0)
+        l2 = h.new_zeros(())
+        for _ in range(rounds):
+            z = h + s                                             # input skip
+            gathered = torch.gather(
+                z.unsqueeze(2).expand(B, N, 4, self.hidden), 1,
+                nbr_bn4.unsqueeze(-1).expand(B, N, 4, self.hidden),
+            )
+            pair = torch.cat(
+                [z.unsqueeze(2).expand(B, N, 4, self.hidden), gathered], dim=-1)
+            msg = (self.edge(pair) * mask_bn4.unsqueeze(-1)).sum(2) / deg
+            h = self.gru(msg.reshape(B * N, self.hidden),
+                         h.reshape(B * N, self.hidden)).reshape(B, N, self.hidden)
+            l2 = l2 + h.pow(2).mean()
+        logits = self.head(_gather_cells(h, idx_b)).squeeze(-1)
+        return logits, l2 / max(rounds, 1)
+
+
 class GNNAdj(nn.Module):
     """Mean-aggregation message passing over the true 4-adjacency (open cells)."""
 

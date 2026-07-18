@@ -81,6 +81,53 @@ def build_f1(n: int, W: int, H: int, wall_p: float, seed: int,
 
 
 # ---------------------------------------------------------------------------
+# F1-rand — placement-neutral reachability (paper §5.2 robustness check):
+# identical to F1 except S and T are uniform random distinct cells (no
+# top-row/bottom-row forcing). Same 50/50 + exact wall-count matching.
+# ---------------------------------------------------------------------------
+
+def _make_f1rand_instance(W, H, wall_p, rng) -> tuple[GridInstance, int]:
+    walls = (rng.random((H, W)) < wall_p).astype(np.uint8)
+    sr, sc = int(rng.integers(H)), int(rng.integers(W))
+    while True:
+        tr, tc = int(rng.integers(H)), int(rng.integers(W))
+        if (tr, tc) != (sr, sc):
+            break
+    walls[sr, sc] = OPEN
+    walls[tr, tc] = OPEN
+    reach = reachable(walls, (sr, sc))
+    inst = GridInstance(walls=walls, source=(sr, sc), target=(tr, tc),
+                        label=int(reach[tr, tc]), family="F1")
+    return inst, int(walls.sum())
+
+
+def build_f1_rand(n: int, W: int, H: int, wall_p: float, seed: int,
+                  max_tries: int = 400_000) -> list[GridInstance]:
+    """Placement-neutral F1: same validity construction as build_f1 (50/50
+    balanced, exact wall-count matched pairs) with fully random S, T."""
+    rng = np.random.default_rng(seed)
+    pos: dict[int, list[GridInstance]] = {}
+    neg: dict[int, list[GridInstance]] = {}
+    half = n // 2
+    tries = 0
+    while (sum(len(v) for v in pos.values()) < n
+           or sum(len(v) for v in neg.values()) < n) and tries < max_tries:
+        tries += 1
+        inst, wc = _make_f1rand_instance(W, H, wall_p, rng)
+        (pos if inst.label == 1 else neg).setdefault(wc, []).append(inst)
+    out: list[GridInstance] = []
+    for wc, plist in pos.items():
+        nlist = neg.get(wc, [])
+        for p, q in zip(plist, nlist):
+            if len(out) >= 2 * half:
+                break
+            out.append(p)
+            out.append(q)
+    rng.shuffle(out)
+    return out
+
+
+# ---------------------------------------------------------------------------
 # F3 — 1D-intrinsic control (row prefix parity)
 # ---------------------------------------------------------------------------
 
