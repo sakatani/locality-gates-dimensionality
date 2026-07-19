@@ -1,0 +1,7 @@
+torch>=2.2
+numpy>=1.26
+scipy>=1.11
+matplotlib>=3.8
+tqdm>=4.66
+# easy-to-hard-data: install with --no-deps (its pinned reportlab fails to build)
+# dm-clrs: optional, only for the CLRS-30 external check (pulls jax)
