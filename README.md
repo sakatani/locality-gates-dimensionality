@@ -78,7 +78,11 @@ python -m experiments.phase12_2d_compute_medium.external_maze  # Schwarzschild m
 python -m experiments.phase13_learned_layout.gate              # learned-layout gate (null)
 ```
 
-Set `PHASE12_QUICK=1` (or `PHASE13_QUICK=1`) for fast smoke runs. The maze
+Set `PHASE12_QUICK=1` (or `PHASE13_QUICK=1`) for fast smoke runs (these use
+budgets far below the pre-registered gates, so gate verdicts like
+`GREEN=False` are expected in quick mode). Runners overwrite the result JSONs
+in `runs/`; the shipped originals can always be restored with
+`git checkout -- runs/`. The maze
 check downloads the easy-to-hard maze data (~1.3 GB) on first use; note the
 package's tracking URL is defunct — fetch the tarballs directly from
 `https://cs.umd.edu/~tomg/download/Easy_to_Hard_Datav2/` if the built-in
