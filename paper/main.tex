@@ -215,10 +215,38 @@ bottleneck-free; we do not compete with rewiring but note
 \paragraph{Neural cellular automata.} Weight-shared local 2D updates trained
 by gradient descent \citep{mordvintsev2020nca} have been extended toward
 computation \citep{bena2025path} and grid reasoning benchmarks
-\citep{xu2025ncaarc}. Our Mechanism II/III results give a controlled account
-of \emph{why} such models length-generalize on grid tasks
-(scale-equivariance) and where they will not (depth-scaling tasks; our
-adaptive-depth null in \S\ref{sec:adaptive}).
+\citep{xu2025ncaarc}; differentiable spatial computers with local read/write
+heads \citep{malhotra2025nftm} are a recent addition to the same family. Our
+Mechanism II/III results give a controlled account of \emph{why} such models
+length-generalize on grid tasks (scale-equivariance) and where they will not
+(depth-scaling tasks; our adaptive-depth null in \S\ref{sec:adaptive}).
+
+\paragraph{Serialization of 2D structure.} Two applied literatures have
+independently observed that flattening 2D data into a 1D sequence is not a
+neutral choice. Vision state-space models apply a 1D-local selective scan to
+serialized patches; there, scan order measurably affects accuracy
+\citep{hardan2025flatten}, and the field has progressed from raster scans
+through multi-directional to input-adaptive scan paths precisely because
+fixed orders disrupt spatial adjacency \citep{li2025damamba}. For language
+models, \citet{lo2026serialization} document ``serialization friction'': on
+matrix tasks (transpose, Game of Life, LU decomposition), input rendered in
+native 2D layout outperforms 1D text serialization at the system level, with
+the gap widening in task size. These works establish the phenomenon in
+applied, system-level settings; what this paper adds is the controlled
+mechanism behind it --- an information- and parameter-matched isolation of
+operator locality, a bandwidth account of why \emph{no} fixed serialization
+can close the gap (the space-filling-curve control of
+\S\ref{sec:serialization} bounds the best case of the static scan-order
+design space), and the boundary conditions under which the effect
+disappears. The scan-order literature's own
+trajectory --- toward multi-path and adaptive scans that re-import 2D
+adjacency --- is what the bandwidth account predicts. Conversely,
+\citet{kirchmeyer2023oriented} show that ImageNet ConvNets built entirely
+from oriented 1D kernels match 2D convolutions; this is consistent with our
+analysis rather than contrary to it, because their oriented kernels still
+index the 2D layout (the medium stays two-dimensional; only the kernel is
+factorized), whereas the serialization our bandwidth argument penalizes is of
+the layout itself.
 
 \paragraph{Diagrams and cognition.} \citet{larkin1987diagram} argued diagrams
 substitute cheap perceptual locality for expensive search. Our results are a
@@ -227,10 +255,10 @@ forced to pay for non-locality.
 
 \paragraph{Set versus sequence.} Permutation-invariant set architectures are
 the established prior for order-irrelevant data \citep{zaheer2017deepsets,
-lee2019set}. Our earlier pilot (\S\ref{sec:boundary-global}) measured the set $\gg$ sequence gap directly
-on our own relational tasks and found \emph{no additional} gain from 2D
-positional structure under global attention --- the observation that motivated
-the present locality-centered design.
+lee2019set}. Our earlier pilot (\S\ref{sec:boundary-global}) measured this
+gap directly on our own relational tasks and found \emph{no additional} gain
+from 2D positional structure under global attention --- the observation that
+motivated the present locality-centered design.
 
 \section{Experimental framework}\label{sec:framework}
 

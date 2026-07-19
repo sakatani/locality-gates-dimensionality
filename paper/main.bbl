@@ -1,4 +1,4 @@
-\begin{thebibliography}{23}
+\begin{thebibliography}{28}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -81,6 +81,19 @@ Florian Gr{\"o}tschla, Jo{\"e}l Mathys, and Roger Wattenhofer.
 \newblock Learning graph algorithms with recurrent graph neural networks.
 \newblock \emph{arXiv preprint arXiv:2212.04934}, 2022.
 
+\bibitem[Hardan et~al.(2025)Hardan, Elshenhabi, Khattab, and
+  Mabrok]{hardan2025flatten}
+Osama Hardan, Omar Elshenhabi, Tamer Khattab, and Mohamed Mabrok.
+\newblock Flatten wisely: How patch order shapes {Mamba}-powered vision for
+  {MRI} segmentation.
+\newblock \emph{arXiv preprint arXiv:2507.13384}, 2025.
+
+\bibitem[Kirchmeyer and Deng(2023)]{kirchmeyer2023oriented}
+Alexandre Kirchmeyer and Jia Deng.
+\newblock Convolutional networks with oriented {1D} kernels.
+\newblock In \emph{Proceedings of the IEEE/CVF International Conference on
+  Computer Vision (ICCV)}, pages 6222--6232, 2023.
+
 \bibitem[Larkin and Simon(1987)]{larkin1987diagram}
 Jill~H. Larkin and Herbert~A. Simon.
 \newblock Why a diagram is (sometimes) worth ten thousand words.
@@ -93,11 +106,30 @@ Juho Lee, Yoonho Lee, Jungtaek Kim, Adam~R. Kosiorek, Seungjin Choi, and
   permutation-invariant neural networks.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2019.
 
+\bibitem[Li et~al.(2025)Li, Li, Lyu, Pei, Zhang, Jin, and Ji]{li2025damamba}
+Tanzhe Li, Caoshuo Li, Jiayi Lyu, Hongjuan Pei, Baochang Zhang, Taisong Jin,
+  and Rongrong Ji.
+\newblock {DAMamba}: Vision state space model with dynamic adaptive scan.
+\newblock \emph{arXiv preprint arXiv:2502.12627}, 2025.
+
+\bibitem[Lo et~al.(2026)Lo, Li, Yang, Zhang, Zhang, Bengio, and
+  Zhang]{lo2026serialization}
+Chung-Hsiang Lo, Lu~Li, Diji Yang, Tianyu Zhang, Yunkai Zhang, Yoshua Bengio,
+  and Yi~Zhang.
+\newblock When {2D} tasks meet {1D} serialization: On serialization friction in
+  structured tasks.
+\newblock \emph{arXiv preprint arXiv:2604.27272}, 2026.
+
 \bibitem[Loukas(2020)]{loukas2020depth}
 Andreas Loukas.
 \newblock What graph neural networks cannot learn: Depth vs width.
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2020.
+
+\bibitem[Malhotra and Seghouani(2025)]{malhotra2025nftm}
+Akash Malhotra and Nac{\'e}ra Seghouani.
+\newblock Neural field {Turing} machine: A differentiable spatial computer.
+\newblock \emph{arXiv preprint arXiv:2509.03370}, 2025.
 
 \bibitem[Mena et~al.(2018)Mena, Belanger, Linderman, and Snoek]{mena2018gumbel}
 Gonzalo Mena, David Belanger, Scott Linderman, and Jasper Snoek.
