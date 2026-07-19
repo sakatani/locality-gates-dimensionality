@@ -36,7 +36,9 @@ BIG = os.environ.get("PHASE12_MAZE_BIG", "0") == "1"   # fair-shot scale-up (exp
 ROOT = str(Path(__file__).resolve().parents[2] / ".maze_data")
 TRAIN_SIZE = 9
 TEST_SIZES = [9, 11] if QUICK else [9, 11, 13]
-SEEDS = [0] if (QUICK or BIG) else [0, 1, 2]
+_SEEDS_ENV = os.environ.get("PHASE12_MAZE_SEEDS", "")
+SEEDS = ([int(s) for s in _SEEDS_ENV.split(",")] if _SEEDS_ENV
+         else ([0] if (QUICK or BIG) else [0, 1, 2]))
 HIDDEN, DEPTH = (64, 48) if BIG else (32, 24)
 N_TRAIN = 20000 if BIG else (1000 if QUICK else 8000)
 N_TEST = 300 if QUICK else 1000

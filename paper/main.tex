@@ -47,7 +47,9 @@ chance; all headline effects hold at 5 seeds under Holm correction
 \emph{fades} only when required depth scales with problem size. Outside these
 conditions the advantage vanishes: global attention erases it in-distribution
 (while a curriculum-trained iterative Transformer that masters the training
-sizes still transfers nothing to larger ones), recurrent message passing on
+sizes still transfers nothing to larger ones --- even on a bounded-depth
+task that its fixed iteration budget covers at every size), recurrent
+message passing on
 given graphs already size-generalizes without any layout (a boundary we
 reproduce in-house: a stabilized recurrent GNN reaches 1.00 at every width on
 given-graph reachability), and learned differentiable placements of implicit
@@ -253,12 +255,13 @@ substitute cheap perceptual locality for expensive search. Our results are a
 machine counterpart: the benefit exists exactly when the architecture is
 forced to pay for non-locality.
 
-\paragraph{Set versus sequence.} Permutation-invariant set architectures are
-the established prior for order-irrelevant data \citep{zaheer2017deepsets,
-lee2019set}. Our earlier pilot (\S\ref{sec:boundary-global}) measured this
-gap directly on our own relational tasks and found \emph{no additional} gain
-from 2D positional structure under global attention --- the observation that
-motivated the present locality-centered design.
+\paragraph{Set versus sequence.} \sloppy Permutation-invariant set
+architectures are the established prior for order-irrelevant data
+\citep{zaheer2017deepsets, lee2019set}. Our earlier pilot
+(\S\ref{sec:boundary-global}) measured this gap directly on our own
+relational tasks and found \emph{no additional} gain from 2D positional
+structure under global attention --- the observation that motivated the
+present locality-centered design.\par\fussy
 
 \section{Experimental framework}\label{sec:framework}
 
@@ -629,10 +632,38 @@ matches the local arms in distribution --- where, per the input-encoding
 pilot above, layout is irrelevant --- and cedes the entire length-generalization axis to
 the 2D-local medium. Global attention erases the layout advantage \emph{at
 the sizes it is trained on}; it does not inherit the scale-transfer that
-locality provides. (Caveats: one recipe at hidden width 64; the iteration
-count is architecturally fixed at 16 by the per-step embeddings, so unlike
-the recurrent arms this model cannot run longer at test time; larger-scale
+locality provides. (Caveats: one recipe; larger-scale
 global models remain untested, \S\ref{sec:limitations}.)
+
+One confound remains in the F1 comparison: F1's required depth scales with
+$W$, while the UT's iteration count is architecturally fixed at 16 by its
+per-step embeddings, so its large-$W$ failure could partly reflect depth
+budget rather than the operator. We therefore re-ran the identical recipe on
+the bounded-depth families, where 16 iterations suffice at every evaluated
+width (F4b needs $\sim K = 6$ propagation steps; F5 needs $T = 2$), under
+pre-registered thresholds (3 seeds; raw data in
+\texttt{a08b\_global\_bounded.json}). On F4b the UT trains to 0.96 at the
+training widths --- above its F1 level --- and still transfers nothing:
+0.86 at $W = 8$, 0.69 at $W = 12$, and chance (0.50--0.54) at
+$W \in \{16, 20\}$, against the 2D-local arm's flat 0.93 at $W = 20$. Depth
+budget is thereby eliminated as the explanation on this family: a trained
+global model with ample iteration depth still cedes the transfer axis,
+isolating the cause in the operator's lack of scale-transferable (local,
+weight-shared) structure. On F5 the same recipe stopped just short of the
+pre-registered training gate (0.78 against the 0.80 bar), so per protocol it
+yields no transfer verdict; we report it as a training failure (for
+completeness, its unseen-size accuracies show the same decay to chance).
+
+A note on capacity asymmetry. The trained Universal Transformer uses hidden
+width 64 --- twice the hidden width 32 of the local arms
+(\S\ref{sec:arms}) --- because that capacity was needed to get the global
+arm to train at all; the smaller, parameter-matched variant of our second
+attempt did not reach a usable training accuracy. The asymmetry therefore
+runs in the direction that favors the global arm, and its consequences cut
+one way: the UT's in-distribution parity is achieved with a larger model
+than the 2D-local arm it is compared against, and its transfer failure
+cannot be attributed to capacity starvation. The comparison, if anything,
+flatters the global arm; the transfer gap survives it.
 
 \subsection{Given the graph, layout is unnecessary}\label{sec:boundary-given}
 
@@ -832,7 +863,10 @@ pilot scale was not achieved, and we report it as such.
   training failures, a curriculum-trained Universal Transformer learns F1
   in-distribution and fails to length-generalize
   (\S\ref{sec:boundary-global}), so the boundary now rests on a trained
-  model at pilot scale. What remains untested is scale: whether much larger
+  model at pilot scale --- with the depth-budget confound eliminated on the
+  bounded-depth metric family (F4b), where the same trained model with
+  ample iteration depth still decays to chance at unseen sizes. What
+  remains untested is scale: whether much larger
   global models --- cf.\ the scale-trumps-inductive-bias lesson of
   \citet{dosovitskiy2021vit} --- would close the transfer gap.
 \item \textbf{Supervised, hand-designed substrate.} All results concern what
