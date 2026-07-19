@@ -1,0 +1,179 @@
+\begin{thebibliography}{23}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Alon and Yahav(2021)]{alon2021bottleneck}
+Uri Alon and Eran Yahav.
+\newblock On the bottleneck of graph neural networks and its practical
+  implications.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+\newblock arXiv:2006.05205.
+
+\bibitem[Barbero et~al.(2023)Barbero, Velingker, Saberi, Bronstein, and
+  Di~Giovanni]{barbero2023laser}
+Federico Barbero, Ameya Velingker, Amin Saberi, Michael~M. Bronstein, and
+  Francesco Di~Giovanni.
+\newblock Locality-aware graph rewiring in {GNNs}.
+\newblock \emph{arXiv preprint arXiv:2310.01668}, 2023.
+
+\bibitem[B{\`e}na et~al.(2025)B{\`e}na, Faldor, Goodman, and
+  Cully]{bena2025path}
+Gabriel B{\`e}na, Maxence Faldor, Dan F.~M. Goodman, and Antoine Cully.
+\newblock A path to universal neural cellular automata.
+\newblock \emph{arXiv preprint arXiv:2505.13058}, 2025.
+
+\bibitem[Black et~al.(2023)Black, Wan, Nayyeri, and
+  Wang]{black2023effresistance}
+Mitchell Black, Zhengchao Wan, Amir Nayyeri, and Yusu Wang.
+\newblock Understanding oversquashing in {GNNs} through the lens of effective
+  resistance.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Chv{\'a}talov{\'a}(1975)]{chvatalova1975optimal}
+Jarmila Chv{\'a}talov{\'a}.
+\newblock Optimal labelling of a product of two paths.
+\newblock \emph{Discrete Mathematics}, 11\penalty0 (3):\penalty0 249--253,
+  1975.
+
+\bibitem[Cuturi(2013)]{cuturi2013sinkhorn}
+Marco Cuturi.
+\newblock Sinkhorn distances: Lightspeed computation of optimal transport.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2013.
+
+\bibitem[Del{\'e}tang et~al.(2023)Del{\'e}tang, Ruoss, Grau-Moya, Genewein,
+  Wenliang, Catt, Cundy, Hutter, Legg, Veness, and Ortega]{deletang2023chomsky}
+Gr{\'e}goire Del{\'e}tang, Anian Ruoss, Jordi Grau-Moya, Tim Genewein, Li~Kevin
+  Wenliang, Elliot Catt, Chris Cundy, Marcus Hutter, Shane Legg, Joel Veness,
+  and Pedro~A. Ortega.
+\newblock Neural networks and the {Chomsky} hierarchy.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2023.
+\newblock arXiv:2207.02098.
+
+\bibitem[Di~Giovanni et~al.(2023)Di~Giovanni, Giusti, Barbero, Luise, Li{\`o},
+  and Bronstein]{digiovanni2023oversquashing}
+Francesco Di~Giovanni, Lorenzo Giusti, Federico Barbero, Giulia Luise, Pietro
+  Li{\`o}, and Michael~M. Bronstein.
+\newblock On over-squashing in message passing neural networks: The impact of
+  width, depth, and topology.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2023.
+
+\bibitem[Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
+  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and
+  Houlsby]{dosovitskiy2021vit}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+  Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+\newblock arXiv:2010.11929.
+
+\bibitem[Gr{\"o}tschla et~al.(2022)Gr{\"o}tschla, Mathys, and
+  Wattenhofer]{groetschla2022recurrent}
+Florian Gr{\"o}tschla, Jo{\"e}l Mathys, and Roger Wattenhofer.
+\newblock Learning graph algorithms with recurrent graph neural networks.
+\newblock \emph{arXiv preprint arXiv:2212.04934}, 2022.
+
+\bibitem[Larkin and Simon(1987)]{larkin1987diagram}
+Jill~H. Larkin and Herbert~A. Simon.
+\newblock Why a diagram is (sometimes) worth ten thousand words.
+\newblock \emph{Cognitive Science}, 11\penalty0 (1):\penalty0 65--100, 1987.
+
+\bibitem[Lee et~al.(2019)Lee, Lee, Kim, Kosiorek, Choi, and Teh]{lee2019set}
+Juho Lee, Yoonho Lee, Jungtaek Kim, Adam~R. Kosiorek, Seungjin Choi, and
+  Yee~Whye Teh.
+\newblock Set transformer: A framework for attention-based
+  permutation-invariant neural networks.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2019.
+
+\bibitem[Loukas(2020)]{loukas2020depth}
+Andreas Loukas.
+\newblock What graph neural networks cannot learn: Depth vs width.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2020.
+
+\bibitem[Mena et~al.(2018)Mena, Belanger, Linderman, and Snoek]{mena2018gumbel}
+Gonzalo Mena, David Belanger, Scott Linderman, and Jasper Snoek.
+\newblock Learning latent permutations with {Gumbel-Sinkhorn} networks.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2018.
+
+\bibitem[Mordvintsev et~al.(2020)Mordvintsev, Randazzo, Niklasson, and
+  Levin]{mordvintsev2020nca}
+Alexander Mordvintsev, Ettore Randazzo, Eyvind Niklasson, and Michael Levin.
+\newblock Growing neural cellular automata.
+\newblock \emph{Distill}, 2020.
+\newblock https://distill.pub/2020/growing-ca.
+
+\bibitem[Schwarzschild et~al.(2021)Schwarzschild, Borgnia, Gupta, Huang,
+  Vishkin, Goldblum, and Goldstein]{schwarzschild2021canyou}
+Avi Schwarzschild, Eitan Borgnia, Arjun Gupta, Furong Huang, Uzi Vishkin, Micah
+  Goldblum, and Tom Goldstein.
+\newblock Can you learn an algorithm? {Generalizing} from easy to hard problems
+  with recurrent networks.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2021.
+
+\bibitem[Tang et~al.(2020)Tang, Huang, Gu, Lu, and Su]{tang2020itergnn}
+Hao Tang, Zhiao Huang, Jiayuan Gu, Bao-Liang Lu, and Hao Su.
+\newblock Towards scale-invariant graph-related problem solving by iterative
+  homogeneous {GNNs}.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+
+\bibitem[Topping et~al.(2022)Topping, Di~Giovanni, Chamberlain, Dong, and
+  Bronstein]{topping2022curvature}
+Jake Topping, Francesco Di~Giovanni, Benjamin~Paul Chamberlain, Xiaowen Dong,
+  and Michael~M. Bronstein.
+\newblock Understanding over-squashing and bottlenecks on graphs via curvature.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+\newblock arXiv:2111.14522.
+
+\bibitem[Veli{\v{c}}kovi{\'c} et~al.(2022)Veli{\v{c}}kovi{\'c}, Badia, Budden,
+  Pascanu, Banino, Dashevskiy, Hadsell, and Blundell]{velickovic2022clrs}
+Petar Veli{\v{c}}kovi{\'c}, Adri{\`a}~Puigdom{\`e}nech Badia, David Budden,
+  Razvan Pascanu, Andrea Banino, Misha Dashevskiy, Raia Hadsell, and Charles
+  Blundell.
+\newblock The {CLRS} algorithmic reasoning benchmark.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2022.
+\newblock arXiv:2205.15659.
+
+\bibitem[Xu and Miikkulainen(2025)]{xu2025ncaarc}
+Kevin Xu and Risto Miikkulainen.
+\newblock Neural cellular automata for {ARC-AGI}.
+\newblock \emph{arXiv preprint arXiv:2506.15746}, 2025.
+
+\bibitem[Xu et~al.(2021)Xu, Zhang, Li, Du, Kawarabayashi, and
+  Jegelka]{xu2021extrapolate}
+Keyulu Xu, Mozhi Zhang, Jingling Li, Simon~S. Du, Ken-ichi Kawarabayashi, and
+  Stefanie Jegelka.
+\newblock How neural networks extrapolate: From feedforward to graph neural
+  networks.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+\newblock arXiv:2009.11848.
+
+\bibitem[Yehudai et~al.(2021)Yehudai, Fetaya, Meirom, Chechik, and
+  Maron]{yehudai2021local}
+Gilad Yehudai, Ethan Fetaya, Eli Meirom, Gal Chechik, and Haggai Maron.
+\newblock From local structures to size generalization in graph neural
+  networks.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2021.
+
+\bibitem[Zaheer et~al.(2017)Zaheer, Kottur, Ravanbakhsh, Poczos, Salakhutdinov,
+  and Smola]{zaheer2017deepsets}
+Manzil Zaheer, Satwik Kottur, Siamak Ravanbakhsh, Barnabas Poczos, Ruslan
+  Salakhutdinov, and Alexander Smola.
+\newblock Deep sets.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2017.
+
+\end{thebibliography}
